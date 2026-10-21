@@ -8,10 +8,6 @@ export default function Auth() {
     name: '',
     email: '',
     password: '',
-    gender: 'female',
-    age: '',
-    shipping_address: '',
-    role: 'customer',
   })
   const [localError, setLocalError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -31,32 +27,29 @@ export default function Auth() {
     e.preventDefault()
     setLocalError('')
 
-    if (!formData.email || !formData.password) {
-      setLocalError('Please fill in both email and password.')
+    if (!formData.email.trim() || !formData.password) {
+      setLocalError('Email and password are required.')
       return
     }
 
-    if (isSignUp && !formData.name) {
-      setLocalError('Please enter your full name.')
+    if (isSignUp && !formData.name.trim()) {
+      setLocalError('Full name is required to create an account.')
       return
     }
 
     setSubmitting(true)
     try {
       if (isSignUp) {
-        // Schema: { id, name, email, password, gender, age, shipping_address, role }
+        // Schema for POST /api/v1/user: { name, email, password, role: 'client' }
         await signup({
-          name: formData.name,
-          email: formData.email,
+          name: formData.name.trim(),
+          email: formData.email.trim(),
           password: formData.password,
-          gender: formData.gender,
-          age: formData.age ? parseInt(formData.age, 10) : null,
-          shipping_address: formData.shipping_address,
-          role: formData.role || 'customer',
+          role: 'client',
         })
       } else {
         await login({
-          email: formData.email,
+          email: formData.email.trim(),
           password: formData.password,
         })
       }
@@ -120,7 +113,7 @@ export default function Auth() {
             <h2>{isSignUp ? 'Join My Food' : 'Welcome back'}</h2>
             <p className="auth-subtitle">
               {isSignUp
-                ? 'Fill in your delivery details to explore our curated menu'
+                ? 'Create your client account with name, email and password'
                 : 'Enter your credentials to access orders & favorites'}
             </p>
           </div>
@@ -140,6 +133,7 @@ export default function Auth() {
                   value={formData.name}
                   onChange={handleChange}
                   className="form-input"
+                  autoComplete="name"
                 />
               </div>
             )}
@@ -155,6 +149,7 @@ export default function Auth() {
                 value={formData.email}
                 onChange={handleChange}
                 className="form-input"
+                autoComplete="email"
               />
             </div>
 
@@ -169,72 +164,18 @@ export default function Auth() {
                 value={formData.password}
                 onChange={handleChange}
                 className="form-input"
+                autoComplete={isSignUp ? 'new-password' : 'current-password'}
               />
             </div>
 
             {isSignUp && (
-              <>
-                <div className="form-row">
-                  <div className="form-group flex-1">
-                    <label htmlFor="auth-gender">Gender</label>
-                    <select
-                      id="auth-gender"
-                      name="gender"
-                      value={formData.gender}
-                      onChange={handleChange}
-                      className="form-input form-select"
-                    >
-                      <option value="female">Female</option>
-                      <option value="male">Male</option>
-                      <option value="non-binary">Non-binary</option>
-                      <option value="other">Other / Prefer not to say</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group flex-1">
-                    <label htmlFor="auth-age">Age</label>
-                    <input
-                      id="auth-age"
-                      type="number"
-                      name="age"
-                      min="1"
-                      max="120"
-                      placeholder="e.g. 26"
-                      value={formData.age}
-                      onChange={handleChange}
-                      className="form-input"
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="auth-address">Shipping Address</label>
-                  <textarea
-                    id="auth-address"
-                    name="shipping_address"
-                    rows="2"
-                    placeholder="Street, apartment or suite, city, postal code"
-                    value={formData.shipping_address}
-                    onChange={handleChange}
-                    className="form-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="auth-role">Account Role</label>
-                  <select
-                    id="auth-role"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                    className="form-input form-select"
-                  >
-                    <option value="customer">Customer</option>
-                    <option value="retailer">Food Retailer</option>
-                    <option value="admin">Administrator</option>
-                  </select>
-                </div>
-              </>
+              <div className="auth-info-note">
+                <span className="info-icon">ℹ️</span>
+                <span>
+                  Default role is set to <strong>Client</strong>. You can add or update your
+                  gender, age, and shipping address anytime in your <strong>Profile</strong>.
+                </span>
+              </div>
             )}
 
             <button
@@ -245,7 +186,7 @@ export default function Auth() {
               {submitting
                 ? 'Processing...'
                 : isSignUp
-                ? 'Create My Account'
+                ? 'Create Account'
                 : 'Sign In to My Food'}
             </button>
           </form>

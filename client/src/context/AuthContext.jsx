@@ -32,13 +32,21 @@ export function AuthProvider({ children }) {
     setLoading(true)
     setError(null)
     try {
-      // payload: { name, email, password, gender, age, shipping_address, role }
-      const res = await userAPI.signup(userData).catch(() => {
+      // payload: { name, email, password } with default role: 'client'
+      const payload = {
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
+        role: userData.role || 'client',
+      }
+      const res = await userAPI.signup(payload).catch(() => {
         // Fallback demo user if backend is not running
         return {
           id: 'usr_' + Date.now().toString(36),
-          ...userData,
-          role: userData.role || 'customer',
+          ...payload,
+          gender: null,
+          age: null,
+          shipping_address: null,
           token: 'demo-token-' + Date.now(),
         }
       })

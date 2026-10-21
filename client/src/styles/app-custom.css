@@ -295,6 +295,33 @@
   flex: 1;
 }
 
+.auth-info-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--sand);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.profile-alert-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: #fef3c7;
+  border: 1.5px solid #fde68a;
+  color: #92400e;
+  padding: 14px 20px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .auth-submit-btn {
   margin-top: 10px;
   padding: 14px 24px;

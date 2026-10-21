@@ -40,10 +40,10 @@ async function request(method, path, body) {
    Schema: { id, name, email, password, gender, age, shipping_address, role }
    ────────────────────────────────────────────────────────── */
 export const userAPI = {
-  signup : (data)       => request('POST',   '/user',           data),
+  signup : (data)       => request('POST',   '/user',           { role: 'client', ...data }),
   login  : (data)       => request('POST',   '/user/login',     data),
-  get    : (id)         => request('GET',    `/users?id=${id}`),
-  update : (id, data)   => request('PATCH',  `/users?id=${id}`, data),
+  get    : (id)         => request('GET',    `/users?id=${id}`).catch(() => request('GET', `/user?id=${id}`)),
+  update : (id, data)   => request('PATCH',  `/user?id=${id}`,  data).catch(() => request('PATCH', `/users?id=${id}`, data)),
   delete : (id)         => request('DELETE', `/user?id=${id}`),
 }
 

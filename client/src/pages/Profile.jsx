@@ -15,10 +15,10 @@ export default function Profile() {
     name: '',
     email: '',
     password: '',
-    gender: 'female',
+    gender: '',
     age: '',
     shipping_address: '',
-    role: 'customer',
+    role: 'client',
   })
   const [saving, setSaving] = useState(false)
   const [loadingUser, setLoadingUser] = useState(false)
@@ -36,10 +36,10 @@ export default function Profile() {
           name: profile.name || '',
           email: profile.email || '',
           password: profile.password || '',
-          gender: profile.gender || 'other',
+          gender: profile.gender || '',
           age: profile.age || '',
           shipping_address: profile.shipping_address || '',
-          role: profile.role || 'customer',
+          role: profile.role || 'client',
         })
       } catch (err) {
         console.warn('Profile fetch note:', err)
@@ -47,10 +47,10 @@ export default function Profile() {
           name: user.name || '',
           email: user.email || '',
           password: user.password || '',
-          gender: user.gender || 'other',
+          gender: user.gender || '',
           age: user.age || '',
           shipping_address: user.shipping_address || '',
-          role: user.role || 'customer',
+          role: user.role || 'client',
         })
       } finally {
         setLoadingUser(false)
@@ -65,7 +65,7 @@ export default function Profile() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  // Handle PATCH api/v1/users?id
+  // Handle PATCH api/v1/user?id
   const handleSave = async (e) => {
     e.preventDefault()
     setSaving(true)
@@ -78,7 +78,7 @@ export default function Profile() {
         age: formData.age ? parseInt(formData.age, 10) : null,
         shipping_address: formData.shipping_address,
       })
-      setMsg({ text: 'Profile updated successfully!', type: 'success' })
+      setMsg({ text: 'Profile updated successfully via PATCH /api/v1/user!', type: 'success' })
       setIsEditing(false)
     } catch (err) {
       setMsg({ text: err.message || 'Failed to update profile.', type: 'error' })
@@ -101,6 +101,8 @@ export default function Profile() {
       alert(`Could not delete account: ${err.message}`)
     }
   }
+
+  const hasMissingDetails = !formData.shipping_address || !formData.gender || !formData.age
 
   return (
     <div className="profile-page">
@@ -130,7 +132,7 @@ export default function Profile() {
 
               <div className="profile-role-chip">
                 <span className="role-dot" />
-                <span className="role-text">{formData.role?.toUpperCase()}</span>
+                <span className="role-text">{formData.role?.toUpperCase() || 'CLIENT'}</span>
               </div>
 
               <div className="profile-divider" />
@@ -138,15 +140,15 @@ export default function Profile() {
               <div className="profile-quick-stats">
                 <div className="stat-item">
                   <span className="stat-label">Gender</span>
-                  <span className="stat-value">{formData.gender || 'Not set'}</span>
+                  <span className="stat-value">{formData.gender || 'Not added yet'}</span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">Age</span>
-                  <span className="stat-value">{formData.age ? `${formData.age} yrs` : 'Not set'}</span>
+                  <span className="stat-value">{formData.age ? `${formData.age} yrs` : 'Not added yet'}</span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">User ID</span>
-                  <span className="stat-value font-mono">{user?.id || 'usr_demo'}</span>
+                  <span className="stat-value font-mono">{user?.id || 'usr_client'}</span>
                 </div>
               </div>
 
@@ -169,11 +171,24 @@ export default function Profile() {
 
             {/* Right Card: Full Details & Edit Form */}
             <section className="profile-card profile-main-card card">
+              {hasMissingDetails && !isEditing && (
+                <div className="profile-alert-banner">
+                  <span>📍 Complete your profile: Add your gender, age & shipping address for fast delivery!</span>
+                  <button
+                    type="button"
+                    className="btn sm"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    Add Details
+                  </button>
+                </div>
+              )}
+
               <div className="profile-card-header">
                 <div>
                   <h3>Personal Information</h3>
                   <p className="card-subtext">
-                    Manage your account details and delivery address for faster checkouts.
+                    Manage your account details and delivery address (saved via <code>PATCH /api/v1/user?id</code>).
                   </p>
                 </div>
                 {!isEditing && (
@@ -190,7 +205,7 @@ export default function Profile() {
               {isEditing ? (
                 <form onSubmit={handleSave} className="profile-edit-form">
                   <div className="form-group">
-                    <label htmlFor="prof-name">Full Name</label>
+                    <label htmlFor="prof-name">Full Name *</label>
                     <input
                       id="prof-name"
                       type="text"
@@ -215,7 +230,7 @@ export default function Profile() {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="prof-password">Update Password</label>
+                    <label htmlFor="prof-password">Password</label>
                     <input
                       id="prof-password"
                       type="password"
@@ -240,6 +255,7 @@ export default function Profile() {
                         onChange={handleChange}
                         className="form-input form-select"
                       >
+                        <option value="">Select Gender</option>
                         <option value="female">Female</option>
                         <option value="male">Male</option>
                         <option value="non-binary">Non-binary</option>
@@ -257,6 +273,7 @@ export default function Profile() {
                         max="120"
                         value={formData.age}
                         onChange={handleChange}
+                        placeholder="e.g. 25"
                         className="form-input"
                       />
                     </div>
@@ -280,7 +297,7 @@ export default function Profile() {
                     <input
                       id="prof-role"
                       type="text"
-                      value={formData.role}
+                      value={formData.role || 'client'}
                       disabled
                       className="form-input disabled"
                     />
@@ -322,12 +339,12 @@ export default function Profile() {
 
                   <div className="display-row">
                     <span className="display-label">Gender</span>
-                    <span className="display-value capitalize">{formData.gender || '—'}</span>
+                    <span className="display-value capitalize">{formData.gender || 'Not added yet'}</span>
                   </div>
 
                   <div className="display-row">
                     <span className="display-label">Age</span>
-                    <span className="display-value">{formData.age || '—'}</span>
+                    <span className="display-value">{formData.age ? `${formData.age} years old` : 'Not added yet'}</span>
                   </div>
 
                   <div className="display-row">
@@ -339,7 +356,7 @@ export default function Profile() {
 
                   <div className="display-row">
                     <span className="display-label">Role</span>
-                    <span className="display-value capitalize">{formData.role || 'customer'}</span>
+                    <span className="display-value capitalize">{formData.role || 'client'}</span>
                   </div>
                 </div>
               )}
