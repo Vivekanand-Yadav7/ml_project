@@ -1,0 +1,226 @@
+.wrap { max-width: calc(var(--max) + 2 * var(--page-pad)); margin: 0 auto; padding: 0 var(--page-pad); }
+.section { padding: 72px 0; }
+
+/* Section heading: small lead word over a big olive word, with a hairline rule */
+.section-head { display: flex; align-items: flex-end; gap: 40px; margin-bottom: 48px; }
+.section-head .rule { flex: 1; height: 1px; background: var(--line); margin-bottom: 14px; }
+.section-head.right { flex-direction: row-reverse; text-align: right; }
+.heading { color: var(--olive); font-weight: 800; text-transform: uppercase; line-height: 0.95; }
+.heading small { display: block; font-size: clamp(16px, 2vw, 22px); letter-spacing: 0.02em; }
+.heading span { display: block; font-size: clamp(40px, 7vw, 76px); }
+
+/* Hero */
+.hero { background: var(--olive); color: #fff; border-radius: 0 0 var(--radius-shell) var(--radius-shell); overflow: hidden; }
+.hero-inner { display: grid; grid-template-columns: 1fr 1.1fr; align-items: center; gap: 40px; min-height: 520px; padding-left: var(--page-pad); max-width: calc(var(--max) + 2 * var(--page-pad)); margin: 0 auto; }
+.hero-copy h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 700; line-height: 1; text-transform: uppercase; }
+.hero-copy .sub { font-size: clamp(18px, 2vw, 24px); font-weight: 500; margin: 20px 0 24px; max-width: 18ch; }
+.hero-copy .meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid rgba(255,255,255,.45); padding-top: 18px; margin-bottom: 32px; max-width: 360px; font-size: 12px; }
+.hero-media { height: 440px; border-radius: 999px 0 0 999px / 220px 0 0 220px; overflow: hidden; background: var(--sand); }
+.hero-media > * { width: 100%; height: 100%; object-fit: cover; }
+
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 28px var(--page-pad); max-width: calc(var(--max) + 2 * var(--page-pad)); margin: 0 auto; }
+.nav-links { display: flex; align-items: center; gap: 36px; font-weight: 500; }
+.nav-links a[aria-current='page'] { text-decoration: underline; text-underline-offset: 6px; }
+
+/* Grids */
+.icon-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 36px 44px; }
+.season-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; }
+.dish-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
+
+.digest { max-width: 840px; margin: 0 auto; display: grid; gap: 22px; }
+
+.footer { background: var(--sand); border-radius: var(--radius-shell) var(--radius-shell) 0 0; margin-top: 80px; padding: 56px 0; }
+.footer-inner { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 40px; align-items: start; }
+
+.page-title { padding: 24px 0 0; }
+
+@media (max-width: 860px) {
+  .hero-inner { grid-template-columns: 1fr; padding: 8px var(--page-pad) 0; min-height: 0; }
+  .hero-media { height: 300px; border-radius: 150px 150px 0 0; margin: 0 calc(-1 * var(--page-pad)); }
+  .footer-inner { grid-template-columns: 1fr; }
+  .section-head { gap: 20px; }
+  .nav-links { gap: 18px; font-size: 14px; }
+}
+
+/* ===== Multi-pager layout ===== */
+.multipager {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--cream);
+}
+
+.mp-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.mp-page {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(60px);
+  transition: opacity 0.48s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.48s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+  /* scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: var(--sand) transparent;
+}
+
+.mp-page.mp-active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  z-index: 1;
+}
+
+/* Exit animations */
+.mp-track.mp-exit-down .mp-page.mp-active {
+  opacity: 0;
+  transform: translateY(-50px);
+}
+.mp-track.mp-exit-up .mp-page.mp-active {
+  opacity: 0;
+  transform: translateY(50px);
+}
+
+/* ---- Hero page: fill viewport, no extra padding ---- */
+.mp-page:first-child .hero {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.mp-page:first-child .hero-inner {
+  flex: 1;
+}
+
+/* ---- Inner pages: center content vertically ---- */
+.mp-page:not(:first-child) > .section {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ---- Dot navigation ---- */
+.mp-dots {
+  position: fixed;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 100;
+}
+
+.mp-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--olive);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.mp-dot:hover { background: var(--sand); transform: scale(1.25); }
+.mp-dot-active { background: var(--olive) !important; transform: scale(1.3) !important; }
+
+/* ---- Arrow buttons ---- */
+.mp-arrow {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--olive);
+  background: var(--cream);
+  color: var(--olive);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 16px rgba(60,60,10,0.12);
+}
+
+.mp-arrow:hover { background: var(--olive); color: var(--cream); transform: translateX(-50%) scale(1.08); }
+.mp-arrow-up   { top: 24px; }
+.mp-arrow-down { bottom: 24px; }
+
+/* Bounce animation on down arrow */
+.mp-arrow-down { animation: bounce-down 2s ease-in-out infinite; }
+@keyframes bounce-down {
+  0%, 100% { bottom: 24px; }
+  50%       { bottom: 30px; }
+}
+
+/* ---- Page label chip (bottom-left) ---- */
+.mp-label-chip {
+  position: fixed;
+  bottom: 28px;
+  left: 32px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font);
+  animation: fade-in 0.4s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mp-label-num {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--olive);
+  letter-spacing: 0.08em;
+}
+
+.mp-label-sep {
+  width: 24px;
+  height: 1px;
+  background: var(--line);
+}
+
+.mp-label-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ---- Dot nav colour inversion on hero (olive bg) ---- */
+.multipager:has(.mp-page:first-child.mp-active) .mp-dot {
+  border-color: rgba(255,255,255,0.7);
+}
+.multipager:has(.mp-page:first-child.mp-active) .mp-dot-active {
+  background: #fff !important;
+  border-color: #fff !important;
+}
+.multipager:has(.mp-page:first-child.mp-active) .mp-arrow {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.6);
+  color: #fff;
+}
+.multipager:has(.mp-page:first-child.mp-active) .mp-label-num { color: rgba(255,255,255,0.9); }
+.multipager:has(.mp-page:first-child.mp-active) .mp-label-sep { background: rgba(255,255,255,0.4); }
+.multipager:has(.mp-page:first-child.mp-active) .mp-label-text { color: rgba(255,255,255,0.6); }
+
+@media (max-width: 860px) {
+  .mp-dots { right: 16px; }
+  .mp-label-chip { left: 16px; bottom: 20px; }
+  .mp-arrow-down { bottom: 18px; }
+}

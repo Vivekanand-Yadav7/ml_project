@@ -1,0 +1,45 @@
+/* ===== Design tokens: change the look of the whole app here ===== */
+:root {
+  --olive: #667004;
+  --olive-dark: #4f5703;
+  --cream: #f8f5ea;
+  --card: #fffef8;
+  --sand: #e4d9ae;
+  --ink: #151515;
+  --muted: #9a9a8e;
+  --line: #b9bb73;
+
+  --font: 'Syne', system-ui, sans-serif;
+
+  --radius-card: 22px;
+  --radius-pill: 999px;
+  --radius-shell: 28px;
+
+  --shadow-card: 0 6px 24px rgba(60, 60, 10, 0.08);
+  --page-pad: clamp(20px, 6vw, 100px);
+  --max: 1200px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--cream);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button, select, input { font: inherit; color: inherit; }
+h1, h2, h3, h4, p { margin: 0; }
+
+:focus-visible { outline: 3px solid var(--olive); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
