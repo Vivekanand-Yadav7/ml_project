@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.api.v1.router import api_router
+from app.middlewares.logging_middleware import LoggingMiddleware
+from app.middlewares.error_handler import setup_exception_handlers
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -10,6 +12,12 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Exception handlers
+setup_exception_handlers(app)
+
+# Custom Middlewares
+app.add_middleware(LoggingMiddleware)
 
 # CORS Middleware
 app.add_middleware(

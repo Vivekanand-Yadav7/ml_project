@@ -1,8 +1,7 @@
 from fastapi import APIRouter
+from app.controllers.health_controller import router as health_router
 
 api_router = APIRouter()
 
-
-@api_router.get("/health")
-def health_check():
-    return {"status": "ok", "message": "API is operational"}
+# Mount controller routers
+api_router.include_router(health_router)
