@@ -13,7 +13,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 2. Users Table
--- Schema: { id, name, email, password, gender, age, shipping_address, role }
+-- Schema: { id, name, email, password, gender, age, shipping_address, role, image_url }
 CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(64) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
     age INTEGER,
     shipping_address TEXT,
     role VARCHAR(50) NOT NULL DEFAULT 'client',
+    image_url TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -62,7 +63,7 @@ CREATE TRIGGER update_products_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 -- 4. Orders Table
--- Schema: { id, client_id, retailer_id, product_id, status }
+-- Schema: { id, client_id, retailer_id, product_id, status, image_url }
 -- Foreign keys:
 --   - client_id -> users(id)   (The customer placing the order)
 --   - retailer_id -> users(id) (The retailer user fulfilling the order)
@@ -73,6 +74,7 @@ CREATE TABLE IF NOT EXISTS orders (
     retailer_id VARCHAR(64) NOT NULL,
     product_id INTEGER NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'pending',
+    image_url TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_orders_client FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE,

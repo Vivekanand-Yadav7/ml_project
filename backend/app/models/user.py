@@ -14,5 +14,6 @@ class User(Base):
     age = Column(Integer, nullable=True)
     shipping_address = Column(Text, nullable=True)
     role = Column(String(50), nullable=False, default="client", index=True)
+    image_url = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

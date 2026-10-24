@@ -56,6 +56,7 @@ class OrderRepository(BaseRepository[Order]):
             "retailer_id": obj_in.retailer_id,
             "product_id": int(obj_in.product_id),
             "status": obj_in.status or "pending",
+            "image_url": obj_in.image_url,
         }
         res = self.db.execute(stmt, params)
         row = res.mappings().first()
@@ -69,6 +70,7 @@ class OrderRepository(BaseRepository[Order]):
             "status": obj_in.get("status"),
             "retailer_id": obj_in.get("retailer_id"),
             "product_id": int(obj_in["product_id"]) if "product_id" in obj_in and obj_in["product_id"] is not None else None,
+            "image_url": obj_in.get("image_url"),
         }
         res = self.db.execute(stmt, params)
         row = res.mappings().first()

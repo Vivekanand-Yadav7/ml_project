@@ -82,11 +82,11 @@ backend/
 ## API Specification (Plural REST Resources)
 
 ### Users (`/api/v1/users`)
-- `POST /api/v1/users` – Register new user
+- `POST /api/v1/users` – Register new user (accepts `name`, `email`, `password`, `image_url`, `role`, etc.)
 - `POST /api/v1/users/login` – Authenticate user
 - `GET /api/v1/users` – List all users or get by `?id=` query parameter
 - `GET /api/v1/users/{user_id}` – Get user by path ID
-- `PATCH /api/v1/users/{user_id}` (or `PATCH /api/v1/users?id=`) – Update user profile
+- `PATCH /api/v1/users/{user_id}` (or `PATCH /api/v1/users?id=`) – Update user profile (including `image_url`)
 - `DELETE /api/v1/users/{user_id}` (or `DELETE /api/v1/users?id=`) – Delete user account
 
 ### Products (`/api/v1/products`)
@@ -97,11 +97,14 @@ backend/
 - `DELETE /api/v1/products/{product_id}` (or `DELETE /api/v1/products?id=`) – Delete product
 
 ### Orders (`/api/v1/orders`)
-- `POST /api/v1/orders` – Create order with dual FKs (`client_id`, `retailer_id`, `product_id`)
+- `POST /api/v1/orders` – Create order with dual FKs (`client_id`, `retailer_id`, `product_id`, and optional `image_url`)
 - `GET /api/v1/orders` – List orders (supports `?id=` for user orders or order ID lookup)
 - `GET /api/v1/orders/{order_id}` – Get order by path ID
-- `PATCH /api/v1/orders/{order_id}` (or `PATCH /api/v1/orders?id=`) – Update order status
+- `PATCH /api/v1/orders/{order_id}` (or `PATCH /api/v1/orders?id=`) – Update order status or `image_url`
 - `DELETE /api/v1/orders/{order_id}` (or `DELETE /api/v1/orders?id=`) – Cancel order & restore inventory
+
+### Uploads (`/api/v1/upload`)
+- `POST /api/v1/upload/image` – Upload image to Cloudinary (supports JPEG, PNG, WebP up to 5MB, returns `{ "url": secure_url }`)
 
 ## Getting Started
 
@@ -127,8 +130,16 @@ python -m app.db.migrate down
 Raw PostgreSQL migration scripts are also available in `backend/migrations/`:
 - `001_initial_schema_up.sql`
 - `001_initial_schema_down.sql`
+- `002_seed_data.sql`
 
-### 3. Run the Development Server
+### 3. Seed Starter Test Data (Optional)
+
+Populate test retailers, client accounts, dishes, and starter orders:
+```bash
+python -m app.db.seed
+```
+
+### 4. Run the Development Server
 
 ```bash
 uvicorn app.main:app --reload --port 8000
@@ -139,4 +150,5 @@ The server will be available at:
 - **Interactive API Docs (Swagger UI)**: http://localhost:8000/docs
 - **Alternative API Docs (ReDoc)**: http://localhost:8000/redoc
 - **Health Check**: http://localhost:8000/api/v1/health
+
 

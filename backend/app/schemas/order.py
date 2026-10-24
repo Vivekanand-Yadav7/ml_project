@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field, ConfigDict, model_validator
 class OrderBase(BaseModel):
     product_id: int
     status: str = Field(default="pending", max_length=50)
+    image_url: Optional[str] = None
 
 
 class OrderCreate(BaseModel):
@@ -14,6 +15,7 @@ class OrderCreate(BaseModel):
     ordered_by: Optional[str] = None
     retailer_id: Optional[str] = None
     status: Optional[str] = "pending"
+    image_url: Optional[str] = None
 
     @model_validator(mode="after")
     def validate_client(self):
@@ -27,6 +29,7 @@ class OrderUpdate(BaseModel):
     status: Optional[str] = None
     retailer_id: Optional[str] = None
     product_id: Optional[int] = None
+    image_url: Optional[str] = None
 
 
 class OrderResponse(BaseModel):
@@ -37,6 +40,7 @@ class OrderResponse(BaseModel):
     retailer_id: str
     product_id: int
     status: str
+    image_url: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

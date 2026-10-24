@@ -12,6 +12,7 @@ class UserBase(BaseModel):
     age: Optional[int] = Field(None, ge=0, le=150)
     shipping_address: Optional[str] = None
     role: str = Field(default="client", max_length=50)
+    image_url: Optional[str] = None
 
 
 class UserCreate(BaseModel):
@@ -22,6 +23,7 @@ class UserCreate(BaseModel):
     age: Optional[int] = None
     shipping_address: Optional[str] = None
     role: Optional[str] = "client"
+    image_url: Optional[str] = None
 
 
 class UserLogin(BaseModel):
@@ -36,6 +38,7 @@ class UserUpdate(BaseModel):
     age: Optional[int] = None
     shipping_address: Optional[str] = None
     role: Optional[str] = None
+    image_url: Optional[str] = None
 
 
 class UserResponse(BaseModel):
@@ -48,6 +51,7 @@ class UserResponse(BaseModel):
     age: Optional[int] = None
     shipping_address: Optional[str] = None
     role: str
+    image_url: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

@@ -89,6 +89,7 @@ class OrderService:
             retailer_id=retailer_id,
             product_id=product.id,
             status=order_in.status or "pending",
+            image_url=order_in.image_url,
         )
         return self.order_repo.create(order)
 

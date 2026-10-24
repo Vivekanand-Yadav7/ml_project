@@ -42,6 +42,7 @@ class UserService:
             age=user_in.age,
             shipping_address=user_in.shipping_address,
             role=user_in.role or "client",
+            image_url=user_in.image_url,
         )
         created = self.user_repo.create(user_obj)
         token = f"token_{secrets.token_urlsafe(24)}"

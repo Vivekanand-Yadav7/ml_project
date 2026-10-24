@@ -41,6 +41,7 @@ class UserRepository(BaseRepository[User]):
             "age": obj_in.age,
             "shipping_address": obj_in.shipping_address,
             "role": obj_in.role or "client",
+            "image_url": obj_in.image_url,
         }
         res = self.db.execute(stmt, params)
         row = res.mappings().first()
@@ -57,6 +58,7 @@ class UserRepository(BaseRepository[User]):
             "age": obj_in.get("age"),
             "shipping_address": obj_in.get("shipping_address"),
             "role": obj_in.get("role"),
+            "image_url": obj_in.get("image_url"),
         }
         res = self.db.execute(stmt, params)
         row = res.mappings().first()
