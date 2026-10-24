@@ -41,7 +41,25 @@ export default function OrderCard({ order, product, onCancel, onUpdateStatus }) 
 
       <div className="order-card-body">
         <div className="order-product-preview">
-          <div className="order-product-icon">🍱</div>
+          <div
+            className="order-product-icon"
+            style={{
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {order.image_url || product?.image_url ? (
+              <img
+                src={order.image_url || product?.image_url}
+                alt="Order item"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
+              />
+            ) : (
+              '🍱'
+            )}
+          </div>
           <div className="order-product-details">
             <h4>{product?.name || `Product ID: ${order.product_id}`}</h4>
             {product?.retailer && <p className="retailer-name">From {product.retailer}</p>}

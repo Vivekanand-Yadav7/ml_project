@@ -27,35 +27,16 @@ export default function Orders() {
         let list = []
         if (Array.isArray(res)) {
           list = res
+        } else if (res && typeof res === 'object' && res.id) {
+          list = [res]
         } else if (res?.orders || res?.data) {
           list = res.orders || res.data
         } else {
           // Fallback to local storage for local offline testing
           const localStored = JSON.parse(localStorage.getItem('myfood_orders') || '[]')
           list = localStored.filter(
-            (o) => o.ordered_by === (user.id || user.email) || !o.ordered_by
+            (o) => o.ordered_by === (user.id || user.email) || o.client_id === (user.id || user.email) || !o.ordered_by
           )
-          if (list.length === 0) {
-            // Seed a starter sample order so the user sees immediate live UI
-            const demo = [
-              {
-                id: 'ord_101',
-                ordered_by: user.id || user.email,
-                product_id: 1,
-                status: 'on the way',
-                created_at: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
-              },
-              {
-                id: 'ord_102',
-                ordered_by: user.id || user.email,
-                product_id: 4,
-                status: 'delivered',
-                created_at: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-              },
-            ]
-            localStorage.setItem('myfood_orders', JSON.stringify(demo))
-            list = demo
-          }
         }
         setOrders(list)
 
@@ -91,14 +72,8 @@ export default function Orders() {
   // Cancel order: DELETE /api/v1/orders?id=
   const handleCancelOrder = async (orderId) => {
     try {
-      await orderAPI.delete(orderId).catch(() => {})
+      await orderAPI.delete(orderId)
       setOrders((prev) => prev.filter((o) => o.id !== orderId))
-
-      // Update local storage demo sync
-      const stored = JSON.parse(localStorage.getItem('myfood_orders') || '[]')
-      const updated = stored.filter((o) => o.id !== orderId)
-      localStorage.setItem('myfood_orders', JSON.stringify(updated))
-
       setFeedbackMsg(`Order #${orderId} was cancelled successfully.`)
       setTimeout(() => setFeedbackMsg(''), 3000)
     } catch (err) {
@@ -109,18 +84,10 @@ export default function Orders() {
   // Update order status: PATCH /api/v1/orders?id=
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
-      await orderAPI.update(orderId, { status: newStatus }).catch(() => {})
+      await orderAPI.update(orderId, { status: newStatus })
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
       )
-
-      // Update local storage demo sync
-      const stored = JSON.parse(localStorage.getItem('myfood_orders') || '[]')
-      const updated = stored.map((o) =>
-        o.id === orderId ? { ...o, status: newStatus } : o
-      )
-      localStorage.setItem('myfood_orders', JSON.stringify(updated))
-
       setFeedbackMsg(`Order #${orderId} updated to "${newStatus}".`)
       setTimeout(() => setFeedbackMsg(''), 3000)
     } catch (err) {

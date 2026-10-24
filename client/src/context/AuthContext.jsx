@@ -27,32 +27,22 @@ export function AuthProvider({ children }) {
     }
   }, [user])
 
-  // Signup using POST api/v1/user
+  // Signup using POST /api/v1/users
   const signup = async (userData) => {
     setLoading(true)
     setError(null)
     try {
-      // payload: { name, email, password } with default role: 'client'
       const payload = {
         name: userData.name,
         email: userData.email,
         password: userData.password,
         role: userData.role || 'client',
+        image_url: userData.image_url || null,
       }
-      const res = await userAPI.signup(payload).catch(() => {
-        // Fallback demo user if backend is not running
-        return {
-          id: 'usr_' + Date.now().toString(36),
-          ...payload,
-          gender: null,
-          age: null,
-          shipping_address: null,
-          token: 'demo-token-' + Date.now(),
-        }
-      })
-
+      const res = await userAPI.signup(payload)
       const currentUser = res.user || res.data || res
       const token = res.token || 'demo-jwt-token'
+
       localStorage.setItem(TOKEN_KEY, token)
       setUser(currentUser)
       return currentUser
@@ -64,32 +54,15 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Login: tries endpoint or finds user, fallback to session
+  // Login using POST /api/v1/users/login
   const login = async ({ email, password }) => {
     setLoading(true)
     setError(null)
     try {
-      // Many backends accept POST api/v1/user/login or POST api/v1/user
-      let res
-      try {
-        res = await userAPI.login({ email, password })
-      } catch (e) {
-        // If /user/login not present, try signup endpoint or fallback
-        res = null
-      }
+      const res = await userAPI.login({ email, password })
+      const currentUser = res.user || res.data || res
+      const token = res.token || 'demo-jwt-token'
 
-      const currentUser = res?.user || res?.data || res || {
-        id: 'usr_default',
-        name: email.split('@')[0],
-        email,
-        password,
-        gender: 'Not specified',
-        age: 25,
-        shipping_address: '221B Baker Street, London',
-        role: 'customer',
-      }
-
-      const token = res?.token || 'demo-jwt-token'
       localStorage.setItem(TOKEN_KEY, token)
       setUser(currentUser)
       return currentUser
@@ -101,15 +74,13 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Update profile via PATCH api/v1/users?id
+  // Update profile via PATCH /api/v1/users?id=
   const updateProfile = async (updatedFields) => {
     if (!user?.id) throw new Error('No user logged in')
     setLoading(true)
     setError(null)
     try {
-      const res = await userAPI.update(user.id, updatedFields).catch(() => {
-        return { ...user, ...updatedFields }
-      })
+      const res = await userAPI.update(user.id, updatedFields)
       const updatedUser = res.user || res.data || res || { ...user, ...updatedFields }
       setUser(updatedUser)
       return updatedUser
@@ -121,12 +92,12 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Delete profile via DELETE api/v1/user?id
+  // Delete profile via DELETE /api/v1/users?id=
   const deleteAccount = async () => {
     if (!user?.id) return
     setLoading(true)
     try {
-      await userAPI.delete(user.id).catch(() => {})
+      await userAPI.delete(user.id)
       logout()
     } finally {
       setLoading(false)

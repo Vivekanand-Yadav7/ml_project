@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar.jsx'
 import SectionHead from '../components/SectionHead.jsx'
 import LoadingSpinner from '../components/LoadingSpinner.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
-import { userAPI } from '../services/api.js'
+import { userAPI, uploadAPI } from '../services/api.js'
 
 export default function Profile() {
   const { user, updateProfile, deleteAccount, logout } = useAuth()
@@ -19,12 +19,14 @@ export default function Profile() {
     age: '',
     shipping_address: '',
     role: 'client',
+    image_url: '',
   })
   const [saving, setSaving] = useState(false)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [loadingUser, setLoadingUser] = useState(false)
   const [msg, setMsg] = useState({ text: '', type: '' })
 
-  // Initialize or fetch full user profile via GET api/v1/users?id
+  // Initialize or fetch full user profile via GET /api/v1/users?id=
   useEffect(() => {
     async function fetchUserData() {
       if (!user?.id) return
@@ -40,6 +42,7 @@ export default function Profile() {
           age: profile.age || '',
           shipping_address: profile.shipping_address || '',
           role: profile.role || 'client',
+          image_url: profile.image_url || '',
         })
       } catch (err) {
         console.warn('Profile fetch note:', err)
@@ -51,6 +54,7 @@ export default function Profile() {
           age: user.age || '',
           shipping_address: user.shipping_address || '',
           role: user.role || 'client',
+          image_url: user.image_url || '',
         })
       } finally {
         setLoadingUser(false)
@@ -65,7 +69,29 @@ export default function Profile() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  // Handle PATCH api/v1/user?id
+  // Handle Cloudinary Avatar Upload
+  const handleAvatarFileChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingAvatar(true)
+    setMsg({ text: 'Uploading avatar to Cloudinary...', type: 'info' })
+    try {
+      const uploadRes = await uploadAPI.uploadImage(file)
+      const secureUrl = uploadRes.url
+      setFormData((prev) => ({ ...prev, image_url: secureUrl }))
+
+      // Automatically persist to user profile
+      await updateProfile({ image_url: secureUrl })
+      setMsg({ text: 'Profile photo updated with Cloudinary!', type: 'success' })
+    } catch (err) {
+      setMsg({ text: err.message || 'Avatar upload failed.', type: 'error' })
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
+  // Handle PATCH /api/v1/users?id=
   const handleSave = async (e) => {
     e.preventDefault()
     setSaving(true)
@@ -77,8 +103,9 @@ export default function Profile() {
         gender: formData.gender,
         age: formData.age ? parseInt(formData.age, 10) : null,
         shipping_address: formData.shipping_address,
+        image_url: formData.image_url || null,
       })
-      setMsg({ text: 'Profile updated successfully via PATCH /api/v1/user!', type: 'success' })
+      setMsg({ text: 'Profile updated successfully!', type: 'success' })
       setIsEditing(false)
     } catch (err) {
       setMsg({ text: err.message || 'Failed to update profile.', type: 'error' })
@@ -87,7 +114,7 @@ export default function Profile() {
     }
   }
 
-  // Handle DELETE api/v1/user?id
+  // Handle DELETE /api/v1/users?id=
   const handleDelete = async () => {
     const confirmation = window.confirm(
       'Are you absolutely sure you want to delete your account? This action cannot be undone.'
@@ -123,11 +150,36 @@ export default function Profile() {
           <div className="profile-layout-grid">
             {/* Left Card: Summary Avatar & Quick Info */}
             <aside className="profile-card profile-sidebar card">
-              <div className="profile-avatar-large">
-                {(formData.name || formData.email || 'U')[0].toUpperCase()}
+              <div className="profile-avatar-large" style={{ overflow: 'hidden', position: 'relative' }}>
+                {formData.image_url ? (
+                  <img
+                    src={formData.image_url}
+                    alt={formData.name || 'Avatar'}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  (formData.name || formData.email || 'U')[0].toUpperCase()
+                )}
               </div>
 
-              <h3 className="profile-name">{formData.name || 'Anonymous Gourmet'}</h3>
+              {/* Cloudinary Avatar Upload Button */}
+              <label
+                className="btn sm ghost"
+                style={{ marginTop: 8, cursor: 'pointer', textAlign: 'center', width: '100%' }}
+              >
+                {uploadingAvatar ? 'Uploading to Cloudinary...' : 'Change Photo'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleAvatarFileChange}
+                  disabled={uploadingAvatar}
+                />
+              </label>
+
+              <h3 className="profile-name" style={{ marginTop: 12 }}>
+                {formData.name || 'Anonymous Gourmet'}
+              </h3>
               <p className="profile-email">{formData.email}</p>
 
               <div className="profile-role-chip">
@@ -188,7 +240,7 @@ export default function Profile() {
                 <div>
                   <h3>Personal Information</h3>
                   <p className="card-subtext">
-                    Manage your account details and delivery address (saved via <code>PATCH /api/v1/user?id</code>).
+                    Manage your account details and delivery address (saved via <code>PATCH /api/v1/users?id=</code>).
                   </p>
                 </div>
                 {!isEditing && (
@@ -289,6 +341,19 @@ export default function Profile() {
                       onChange={handleChange}
                       className="form-input"
                       placeholder="Street address, apartment, city, state, zip"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="prof-image">Avatar Image URL (or upload above)</label>
+                    <input
+                      id="prof-image"
+                      type="url"
+                      name="image_url"
+                      value={formData.image_url}
+                      onChange={handleChange}
+                      placeholder="https://res.cloudinary.com/..."
+                      className="form-input"
                     />
                   </div>
 

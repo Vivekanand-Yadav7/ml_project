@@ -74,20 +74,12 @@ export default function Home() {
     try {
       setOrderNotice(`Placing order for "${product.name}"...`)
       await orderAPI.create({
-        ordered_by: user.id || user.email,
+        client_id: user.id,
+        ordered_by: user.id,
+        retailer_id: product.retailer_id || null,
         product_id: product.id,
         status: 'pending',
-      }).catch(() => {
-        // Fallback simulate local persistence for preview
-        const stored = JSON.parse(localStorage.getItem('myfood_orders') || '[]')
-        const newOrder = {
-          id: 'ord_' + Math.floor(1000 + Math.random() * 9000),
-          ordered_by: user.id || user.email,
-          product_id: product.id,
-          status: 'pending',
-          created_at: new Date().toISOString(),
-        }
-        localStorage.setItem('myfood_orders', JSON.stringify([newOrder, ...stored]))
+        image_url: product.image_url || null,
       })
 
       setOrderNotice(`Order placed successfully! Redirecting to orders...`)

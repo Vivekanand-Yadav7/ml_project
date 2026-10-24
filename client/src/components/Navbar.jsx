@@ -23,8 +23,24 @@ export default function Navbar() {
         {user ? (
           <div className="nav-user-cluster">
             <NavLink to="/profile" className="user-pill-link" title="My Profile">
-              <span className="user-avatar-small">
-                {(user.name || user.email || 'U')[0].toUpperCase()}
+              <span
+                className="user-avatar-small"
+                style={{
+                  overflow: 'hidden',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {user.image_url ? (
+                  <img
+                    src={user.image_url}
+                    alt={user.name || 'User'}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  (user.name || user.email || 'U')[0].toUpperCase()
+                )}
               </span>
               <span className="user-nav-name">{user.name?.split(' ')[0] || 'Profile'}</span>
             </NavLink>
