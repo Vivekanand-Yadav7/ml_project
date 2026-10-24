@@ -6,9 +6,10 @@ FastAPI backend service with layered 3-tier architecture (Controllers, Services,
 
 - **`controllers/`**: HTTP layer. Handles requests, calls appropriate services, formats responses, and handles status codes.
 - **`services/`**: Business logic layer. Contains business rules, validations, orchestrates data from repositories, and keeps business rules independent of HTTP or database specifics.
-- **`repositories/`**: Data access layer. Handles database queries, CRUD operations, transactions, and interacts with PostgreSQL via SQLAlchemy.
+- **`repositories/`**: Data access layer. Executes queries, manages transactions, and interfaces with PostgreSQL.
+- **`db/query_catalogue/`**: Centralized SQL Query Catalogue. Single source of truth for all parameterized SQL statements, joins, triggers, and cascading rules across the domain.
 - **`middlewares/`**: Request pipeline processing. Handles logging, response time headers, and global exception handling.
-- **`db/`**: Database engine and session lifecycle management (`get_db`).
+- **`db/`**: Database engine, session lifecycle (`get_db`), and migrations.
 - **`core/`**: Configuration, environment settings, and CORS policies.
 
 ## Directory Structure
@@ -32,13 +33,23 @@ backend/
 │   │   ├── user_service.py
 │   │   ├── product_service.py
 │   │   └── order_service.py
-│   ├── repositories/                 # Repository Layer (Data Access / DB Queries)
+│   ├── repositories/                 # Repository Layer (Executes Query Catalogue queries)
 │   │   ├── __init__.py
 │   │   ├── base_repository.py
 │   │   ├── health_repository.py
 │   │   ├── user_repository.py
 │   │   ├── product_repository.py
 │   │   └── order_repository.py
+│   ├── db/
+│   │   ├── query_catalogue/          # Centralized Query Catalogue (SQL Reference & Queries)
+│   │   │   ├── __init__.py
+│   │   │   ├── user_queries.py       # Parametrized user SQL queries
+│   │   │   ├── product_queries.py    # Parametrized product & stock queries
+│   │   │   ├── order_queries.py      # Dual-FK order queries & rich joins
+│   │   │   └── trigger_queries.py    # Trigger definitions & inventory guards
+│   │   ├── __init__.py
+│   │   ├── session.py
+│   │   └── migrate.py
 │   ├── models/                       # SQLAlchemy Database Models
 │   │   ├── __init__.py
 │   │   ├── user.py
@@ -53,10 +64,6 @@ backend/
 │   │   ├── __init__.py
 │   │   ├── logging_middleware.py
 │   │   └── error_handler.py
-│   ├── db/                           # Database engine, sessions & migration runner
-│   │   ├── __init__.py
-│   │   ├── session.py
-│   │   └── migrate.py
 │   ├── core/                         # Config & Settings
 │   │   ├── __init__.py
 │   │   └── config.py
