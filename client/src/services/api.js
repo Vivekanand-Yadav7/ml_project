@@ -3,7 +3,7 @@
    Base URL is read from VITE_API_URL env var (fallback: localhost:3000)
    ============================================================ */
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 
 function getToken() {
   return localStorage.getItem('myfood_token')
@@ -28,7 +28,7 @@ async function request(method, path, body) {
     let msg = `HTTP ${res.status}`
     try {
       const e = await res.json()
-      msg = e.message || e.error || msg
+      msg = e.detail || e.message || e.error || msg
     } catch { /* ignore parse errors */ }
     throw new Error(msg)
   }
@@ -36,35 +36,35 @@ async function request(method, path, body) {
   return res.json()
 }
 
-/* ── User APIs ─────────────────────────────────────────────
+/* ── User APIs (Plural: /users) ───────────────────────────
    Schema: { id, name, email, password, gender, age, shipping_address, role }
    ────────────────────────────────────────────────────────── */
 export const userAPI = {
-  signup : (data)       => request('POST',   '/user',           { role: 'client', ...data }),
-  login  : (data)       => request('POST',   '/user/login',     data),
-  get    : (id)         => request('GET',    `/users?id=${id}`).catch(() => request('GET', `/user?id=${id}`)),
-  update : (id, data)   => request('PATCH',  `/user?id=${id}`,  data).catch(() => request('PATCH', `/users?id=${id}`, data)),
-  delete : (id)         => request('DELETE', `/user?id=${id}`),
+  signup : (data)       => request('POST',   '/users',          { role: 'client', ...data }),
+  login  : (data)       => request('POST',   '/users/login',    data),
+  get    : (id)         => request('GET',    `/users?id=${id}`).catch(() => request('GET', `/users/${id}`)),
+  update : (id, data)   => request('PATCH',  `/users?id=${id}`, data).catch(() => request('PATCH', `/users/${id}`, data)),
+  delete : (id)         => request('DELETE', `/users?id=${id}`).catch(() => request('DELETE', `/users/${id}`)),
 }
 
-/* ── Product APIs ──────────────────────────────────────────
+/* ── Product APIs (Plural: /products) ─────────────────────
    Schema: { id, name, tag_line, description, nutrients,
              ingredients, retailer, amount, price }
    ────────────────────────────────────────────────────────── */
 export const productAPI = {
   create : (data)       => request('POST',   '/products',            data),
-  getAll : ()           => request('GET',    '/products'),
-  get    : (id)         => request('GET',    `/products?id=${id}`),
-  update : (id, data)   => request('PATCH',  `/products?id=${id}`,   data),
-  delete : (id)         => request('DELETE', `/products?id=${id}`),
+  getAll : (inStock)    => request('GET',    inStock ? '/products?in_stock=true' : '/products'),
+  get    : (id)         => request('GET',    `/products?id=${id}`).catch(() => request('GET', `/products/${id}`)),
+  update : (id, data)   => request('PATCH',  `/products?id=${id}`,   data).catch(() => request('PATCH', `/products/${id}`, data)),
+  delete : (id)         => request('DELETE', `/products?id=${id}`).catch(() => request('DELETE', `/products/${id}`)),
 }
 
-/* ── Order APIs ────────────────────────────────────────────
-   Schema: { id, ordered_by, status, product_id }
+/* ── Order APIs (Plural: /orders) ─────────────────────────
+   Schema: { id, client_id, retailer_id, status, product_id }
    ────────────────────────────────────────────────────────── */
 export const orderAPI = {
   create : (data)       => request('POST',   '/orders',            data),
-  get    : (id)         => request('GET',    `/orders?id=${id}`),
-  update : (id, data)   => request('PATCH',  `/orders?id=${id}`,   data),
-  delete : (id)         => request('DELETE', `/orders?id=${id}`),
+  get    : (id)         => request('GET',    `/orders?id=${id}`).catch(() => request('GET', `/orders/${id}`)),
+  update : (id, data)   => request('PATCH',  `/orders?id=${id}`,   data).catch(() => request('PATCH', `/orders/${id}`, data)),
+  delete : (id)         => request('DELETE', `/orders?id=${id}`).catch(() => request('DELETE', `/orders/${id}`)),
 }
